@@ -1,0 +1,10 @@
+.vscode/**
+.vscode-test/**
+src/**
+.gitignore
+tsconfig.json
+**/*.map
+**/*.ts
+# Note: node_modules is included so sql.js works on Windows (when sqlite3 CLI is unavailable).
+# Excluding node_modules would break the extension on Windows.
+PUBLISHING.md

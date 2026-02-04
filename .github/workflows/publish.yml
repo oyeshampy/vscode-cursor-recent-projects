@@ -1,0 +1,45 @@
+# Publish extension to VS Code Marketplace and/or Open VSX (e.g. for VSCodium).
+# Add one or both secrets: VSCE_PAT (Marketplace), OVSX_PAT (Open VSX).
+# Trigger: create a Release (tag e.g. v0.1.3), or run manually from Actions tab.
+
+name: Publish extension
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Override version (optional; default: from package.json)"
+        required: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Package extension
+        run: npm run package
+
+      - name: Publish to VS Code Marketplace
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: npx @vscode/vsce publish -p $VSCE_PAT
+        continue-on-error: true
+
+      - name: Publish to Open VSX
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+        run: npx ovsx publish -p $OVSX_PAT
+        continue-on-error: true

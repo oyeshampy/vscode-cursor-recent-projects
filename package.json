@@ -1,0 +1,57 @@
+{
+  "name": "vscode-cursor-recent-projects",
+  "displayName": "Open Recent Projects / Folders (Quick access)",
+  "description": "Open recently opened projects from a list with a single pick",
+  "version": "0.1.4",
+  "publisher": "oyeshampy",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/oyeshampy/vscode-cursor-recent-projects"
+  },
+  "license": "MIT",
+  "keywords": [
+    "recent",
+    "projects",
+    "open recent",
+    "cursor",
+    "workspace"
+  ],
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": ["onCommand:vscode-cursor-recent-projects.openRecent"],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "vscode-cursor-recent-projects.openRecent",
+        "title": "Open Recent Project..."
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "vscode-cursor-recent-projects.openRecent",
+        "key": "alt+r"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "npm run compile && vsce package",
+    "publish:marketplace": "vsce publish",
+    "publish:openvsx": "ovsx publish",
+    "version:sync": "node scripts/sync-version.js"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/vscode": "^1.85.0",
+    "ovsx": "^0.9.0",
+    "typescript": "^5.3.0"
+  },
+  "dependencies": {
+    "sql.js": "^1.10.0"
+  }
+}
