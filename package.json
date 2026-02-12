@@ -2,7 +2,7 @@
   "name": "cursor-recent-projects",
   "displayName": "Recent Projects",
   "description": "Open recently opened projects from a list with a single pick",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "oyeshampy",
   "repository": {
     "type": "git",

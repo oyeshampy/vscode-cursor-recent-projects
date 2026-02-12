@@ -78,7 +78,11 @@ async function getRecentPaths(): Promise<RecentEntry[]> {
   const seen = new Set<string>();
   return data.entries.filter((e) => {
     const uri = e.folderUri ?? e.fileUri;
-    if (!uri || !uri.startsWith("file://")) return false;
+    if (!uri) return false;
+    // VS Code/Cursor store local paths as path:/// or file://
+    const isFile = uri.startsWith("file://");
+    const isPath = uri.startsWith("path://");
+    if (!isFile && !isPath) return false;
     const normalized = uri.replace(/\/$/, "");
     if (seen.has(normalized)) return false;
     seen.add(normalized);
@@ -86,9 +90,29 @@ async function getRecentPaths(): Promise<RecentEntry[]> {
   });
 }
 
+/** Normalize path:/// or file:// URIs to a file path for display and opening. */
+function uriToFilePath(uri: string): string {
+  if (uri.startsWith("file://")) {
+    try {
+      return path.normalize(decodeURIComponent(new URL(uri).pathname));
+    } catch {
+      return uri.replace(/^file:\/\//, "");
+    }
+  }
+  if (uri.startsWith("path://")) {
+    try {
+      const p = new URL(uri).pathname;
+      return path.normalize(decodeURIComponent(p || uri.replace(/^path:\/\//, "")));
+    } catch {
+      return uri.replace(/^path:\/\//, "");
+    }
+  }
+  return uri;
+}
+
 function folderLabel(uri: string): string {
   try {
-    const p = path.normalize(decodeURIComponent(new URL(uri).pathname));
+    const p = uriToFilePath(uri);
     return path.basename(p) || p || uri;
   } catch {
     return uri;
@@ -110,9 +134,10 @@ export function activate(context: vscode.ExtensionContext) {
 
       const items: vscode.QuickPickItem[] = entries.map((e) => {
         const uri = e.folderUri ?? e.fileUri ?? "";
+        const filePath = uriToFilePath(uri);
         return {
           label: folderLabel(uri),
-          description: uri.replace(/^file:\/\//, ""),
+          description: filePath,
           detail: uri,
         };
       });
@@ -127,7 +152,8 @@ export function activate(context: vscode.ExtensionContext) {
 
       if (!picked?.detail) return;
 
-      const uri = vscode.Uri.parse(picked.detail);
+      const filePath = uriToFilePath(picked.detail);
+      const uri = vscode.Uri.file(filePath);
       await vscode.commands.executeCommand("vscode.openFolder", uri);
     }
   );
